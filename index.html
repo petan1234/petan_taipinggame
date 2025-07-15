@@ -1,0 +1,42 @@
+
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ぺたんのことばタイピング</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <div class="container">
+        <h1>ぺたんのことばタイピング</h1>
+
+        <div id="start-screen">
+            <img src="petan.png" alt="ぺたん" style="width: 180px; margin-bottom: 20px;">
+            <p style="font-size: 18px;">ぺたんと一緒にタイピングを始めよう！</p>
+            <button id="start-button">ゲームスタート</button>
+        </div>
+
+        <div id="game-container" style="display: none;">
+            <div class="speech-bubble">
+                <p id="sentence">ここにセリフがでるよ</p>
+            </div>
+            <div id="romaji-display"></div>
+            <div class="game-area">
+                <img src="petan.png" alt="ぺたん" id="petan-img">
+            </div>
+            <input type="text" id="input-box" placeholder="ローマ字で入力してね" autocomplete="off" autofocus>
+        </div>
+
+        <div id="clear-screen" class="clear-screen">
+            <h2>ゲームクリア！</h2>
+            <img src="petan.png" alt="ぺたん" id="petan-clear-img" class="clear-animation" style="width: 200px;">
+            <p>すごいね！またあそんでね！</p>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+
+</body>
+</html>
