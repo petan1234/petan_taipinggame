@@ -308,42 +308,24 @@
          * @returns {{isCorrect: boolean, matchedLength: number}}
          */
         function checkInput(typed, target) {
-            let typedIndex = 0;
-            let targetIndex = 0;
+            // 「ん」のnの後に母音が来ない場合の「nn」対応
+            // 例: kannji -> kanji
+            let tempTyped = typed.replace(/nn/g, 'n');
 
-            while (typedIndex < typed.length) {
-                if (targetIndex >= target.length) {
-                    return { isCorrect: false, matchedLength: targetIndex };
-                }
+            // 「っ」の促音対応
+            // 例: kitte -> kite
+            tempTyped = tempTyped.replace(/([a-z])\1/g, '$1');
 
-                // Rule for "つ": "tu" can be typed for "tsu"
-                if (target.startsWith('tsu', targetIndex) && typed.startsWith('tu', typedIndex)) {
-                    typedIndex += 2;
-                    targetIndex += 3;
-                    continue;
-                }
+            // 「tsu」を「tu」で入力できるようにする
+            // 例: tu -> tsu
+            let tempTarget = target.replace(/tsu/g, 'tu');
 
-                // Rule for "ん": "nn" can be typed for "n"
-                if (target.startsWith('n', targetIndex) && typed.startsWith('nn', typedIndex)) {
-                    const nextTargetChar = target[targetIndex + 1];
-                    // Check if 'n' is 'ん' (not part of な,に,ぬ,ね,の)
-                    if (nextTargetChar === undefined || !'aiueoy'.includes(nextTargetChar)) {
-                        typedIndex += 2;
-                        targetIndex += 1;
-                        continue;
-                    }
-                }
-
-                // Default character comparison
-                if (typed[typedIndex] !== target[targetIndex]) {
-                    return { isCorrect: false, matchedLength: targetIndex };
-                }
-
-                typedIndex++;
-                targetIndex++;
+            if (tempTarget.startsWith(tempTyped)) {
+                // マッチした長さを返す
+                return { isCorrect: true, matchedLength: typed.length };
             }
 
-            return { isCorrect: true, matchedLength: targetIndex };
+            return { isCorrect: false, matchedLength: 0 };
         }
 
         inputBox.addEventListener('input', () => {
@@ -382,12 +364,7 @@
             }
         });
 
-        inputBox.addEventListener('keydown', (e) => {
-            if (e.key === 'Backspace' || e.key === 'Delete') {
-                e.preventDefault();
-            }
-            // IME入力中はinputイベントで処理するため、keydownでは効果音を鳴らさない
-        });
+        
 
         // ゲーム開始処理
         startButton.addEventListener('click', async () => {
@@ -398,7 +375,7 @@
             // 読み込み失敗してもゲームは続行できるようにする
             correctSoundBuffer = createBeepSound(); // ビープ音を生成
             incorrectSoundBuffer = createBeepSound(220); // 不正解音をビープ音で生成 (低い音)
-            clearSoundBuffer = await loadSound('clear.mp3');
+            clearSoundBuffer = createBeepSound(880);
 
             startScreen.style.display = 'none';
             gameContainer.style.display = 'block';
