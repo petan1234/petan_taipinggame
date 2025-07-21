@@ -171,6 +171,10 @@
         </div>
 
         <div id="game-container" style="display: none;">
+            <div style="display: flex; justify-content: space-between; font-size: 20px; margin-bottom: 15px; padding: 0 20px;">
+                <div id="score">スコア: 0</div>
+                <div id="timer">残り時間: 60</div>
+            </div>
             <div class="speech-bubble">
                 <p id="sentence">ここにセリフがでるよ</p>
             </div>
@@ -181,10 +185,12 @@
             <input type="text" id="input-box" placeholder="ローマ字で入力してね" autocomplete="off" autofocus>
         </div>
 
-        <div id="clear-screen" class="clear-screen">
-            <h2>ゲームクリア！</h2>
-            <img src="petan.png" alt="ぺたん" id="petan-clear-img" class="clear-animation" style="width: 200px;">
-            <p>すごいね！またあそんでね！</p>
+        <div id="end-screen" class="clear-screen">
+            <h2>ゲーム終了！</h2>
+            <p id="final-score" style="font-size: 24px; font-weight: bold;"></p>
+            <img src="petan.png" alt="ぺたん" style="width: 150px; margin-top: 20px;">
+            <p>また挑戦してね！</p>
+            <button id="retry-button" style="padding: 10px 20px; font-size: 18px; background-color: #a5d6a7; color: white; border: none; border-radius: 5px; cursor: pointer; margin-top: 20px;">もう一度プレイ</button>
         </div>
     </div>
 
@@ -199,9 +205,9 @@
 
         let currentSentence = {};
         let remainingSentences = [...sentences];
-        let clearedCount = 0;
-        const totalQuestions = 5;
-        let lastCorrectValue = ''; // 正しい入力の最新状態を保持
+        let score = 0;
+        let timeLeft = 60;
+        let timerId;
 
         // Web Audio API のコンテキストとバッファ
         let audioContext;
@@ -214,9 +220,13 @@
         const inputBox = document.getElementById('input-box');
         const petanImg = document.getElementById('petan-img');
         const gameContainer = document.getElementById('game-container');
-        const clearScreen = document.getElementById('clear-screen');
         const startScreen = document.getElementById('start-screen');
         const startButton = document.getElementById('start-button');
+        const endScreen = document.getElementById('end-screen');
+        const retryButton = document.getElementById('retry-button');
+        const scoreElement = document.getElementById('score');
+        const timerElement = document.getElementById('timer');
+        const finalScoreElement = document.getElementById('final-score');
 
         // サウンドファイルを読み込む関数
         async function loadSound(url) {
@@ -263,12 +273,32 @@
             return arrayBuffer; // バッファを返す
         }
 
-        function setNextSentence() {
-            if (clearedCount >= totalQuestions) {
-                showClearScreen();
-                return;
-            }
+        function startGame() {
+            score = 0;
+            timeLeft = 60;
+            scoreElement.textContent = `スコア: ${score}`;
+            timerElement.textContent = `残り時間: ${timeLeft}`;
+            lastCorrectValue = '';
+
+            startScreen.style.display = 'none';
+            endScreen.style.display = 'none';
+            gameContainer.style.display = 'block';
             
+            setNextSentence();
+            inputBox.focus();
+
+            clearInterval(timerId);
+            timerId = setInterval(() => {
+                timeLeft--;
+                timerElement.textContent = `残り時間: ${timeLeft}`;
+                if (timeLeft <= 0) {
+                    clearInterval(timerId);
+                    endGame();
+                }
+            }, 1000);
+        }
+
+        function setNextSentence() {
             if (remainingSentences.length === 0) {
                 remainingSentences = [...sentences];
             }
@@ -284,10 +314,11 @@
             inputBox.focus();
         }
 
-        function showClearScreen() {
+        function endGame() {
             gameContainer.style.display = 'none';
-            clearScreen.style.display = 'flex';
-            playSound(clearSoundBuffer); // クリア音を再生
+            endScreen.style.display = 'flex';
+            finalScoreElement.textContent = `最終スコア: ${score}`;
+            playSound(clearSoundBuffer); // ゲーム終了音を再生
         }
 
         function react(type) {
@@ -308,24 +339,42 @@
          * @returns {{isCorrect: boolean, matchedLength: number}}
          */
         function checkInput(typed, target) {
-            // 「ん」のnの後に母音が来ない場合の「nn」対応
-            // 例: kannji -> kanji
-            let tempTyped = typed.replace(/nn/g, 'n');
+            let typedIndex = 0;
+            let targetIndex = 0;
 
-            // 「っ」の促音対応
-            // 例: kitte -> kite
-            tempTyped = tempTyped.replace(/([a-z])\1/g, '$1');
+            while (typedIndex < typed.length) {
+                if (targetIndex >= target.length) {
+                    return { isCorrect: false, matchedLength: targetIndex };
+                }
 
-            // 「tsu」を「tu」で入力できるようにする
-            // 例: tu -> tsu
-            let tempTarget = target.replace(/tsu/g, 'tu');
+                // Rule for "つ": "tu" can be typed for "tsu"
+                if (target.startsWith('tsu', targetIndex) && typed.startsWith('tu', typedIndex)) {
+                    typedIndex += 2;
+                    targetIndex += 3;
+                    continue;
+                }
 
-            if (tempTarget.startsWith(tempTyped)) {
-                // マッチした長さを返す
-                return { isCorrect: true, matchedLength: typed.length };
+                // Rule for "ん": "nn" can be typed for "n"
+                if (target.startsWith('n', targetIndex) && typed.startsWith('nn', typedIndex)) {
+                    const nextTargetChar = target[targetIndex + 1];
+                    // Check if 'n' is 'ん' (not part of な,に,ぬ,ね,の)
+                    if (nextTargetChar === undefined || !'aiueoy'.includes(nextTargetChar)) {
+                        typedIndex += 2;
+                        targetIndex += 1;
+                        continue;
+                    }
+                }
+
+                // Default character comparison
+                if (typed[typedIndex] !== target[targetIndex]) {
+                    return { isCorrect: false, matchedLength: targetIndex };
+                }
+
+                typedIndex++;
+                targetIndex++;
             }
 
-            return { isCorrect: false, matchedLength: 0 };
+            return { isCorrect: true, matchedLength: targetIndex };
         }
 
         inputBox.addEventListener('input', () => {
@@ -348,7 +397,8 @@
 
                 if (result.matchedLength === targetRomaji.length) {
                     // 正解（文章全体が入力完了）
-                    clearedCount++;
+                    score++;
+                    scoreElement.textContent = `スコア: ${score}`;
                     react('happy');
                     inputBox.style.backgroundColor = '#d4edda';
                     setTimeout(() => {
@@ -364,7 +414,12 @@
             }
         });
 
-        
+        inputBox.addEventListener('keydown', (e) => {
+            if (e.key === 'Backspace' || e.key === 'Delete') {
+                e.preventDefault();
+            }
+            // IME入力中はinputイベントで処理するため、keydownでは効果音を鳴らさない
+        });
 
         // ゲーム開始処理
         startButton.addEventListener('click', async () => {
@@ -375,12 +430,12 @@
             // 読み込み失敗してもゲームは続行できるようにする
             correctSoundBuffer = createBeepSound(); // ビープ音を生成
             incorrectSoundBuffer = createBeepSound(220); // 不正解音をビープ音で生成 (低い音)
-            clearSoundBuffer = createBeepSound(880);
+            clearSoundBuffer = await loadSound('clear.mp3');
 
-            startScreen.style.display = 'none';
-            gameContainer.style.display = 'block';
-            setNextSentence();
+            startGame();
         });
+
+        retryButton.addEventListener('click', startGame);
 
     </script>
 
