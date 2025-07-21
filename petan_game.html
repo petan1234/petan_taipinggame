@@ -166,6 +166,7 @@
 
         <div id="start-screen">
             <img src="petan.png" alt="ぺたん" style="width: 180px; margin-bottom: 20px;">
+            <p id="best-score-display" style="font-size: 20px; font-weight: bold; margin-bottom: 20px;">ベストスコア: 0</p>
             <p style="font-size: 18px;">ぺたんと一緒にタイピングを始めよう！</p>
             <button id="start-button">ゲームスタート</button>
         </div>
@@ -188,6 +189,7 @@
         <div id="end-screen" class="clear-screen">
             <h2>ゲーム終了！</h2>
             <p id="final-score" style="font-size: 24px; font-weight: bold;"></p>
+            <p id="best-score-end-display" style="font-size: 20px; margin-top: 10px;"></p>
             <img src="petan.png" alt="ぺたん" style="width: 150px; margin-top: 20px;">
             <p>また挑戦してね！</p>
             <button id="retry-button" style="padding: 10px 20px; font-size: 18px; background-color: #a5d6a7; color: white; border: none; border-radius: 5px; cursor: pointer; margin-top: 20px;">もう一度プレイ</button>
@@ -208,6 +210,7 @@
         let score = 0;
         let timeLeft = 60;
         let timerId;
+        let bestScore = localStorage.getItem('bestScore') || 0;
 
         // Web Audio API のコンテキストとバッファ
         let audioContext;
@@ -227,6 +230,8 @@
         const scoreElement = document.getElementById('score');
         const timerElement = document.getElementById('timer');
         const finalScoreElement = document.getElementById('final-score');
+        const bestScoreDisplay = document.getElementById('best-score-display');
+        const bestScoreEndDisplay = document.getElementById('best-score-end-display');
 
         // サウンドファイルを読み込む関数
         async function loadSound(url) {
@@ -278,6 +283,7 @@
             timeLeft = 60;
             scoreElement.textContent = `スコア: ${score}`;
             timerElement.textContent = `残り時間: ${timeLeft}`;
+            bestScoreDisplay.textContent = `ベストスコア: ${bestScore}`;
             lastCorrectValue = '';
 
             startScreen.style.display = 'none';
@@ -318,6 +324,15 @@
             gameContainer.style.display = 'none';
             endScreen.style.display = 'flex';
             finalScoreElement.textContent = `最終スコア: ${score}`;
+
+            if (score > bestScore) {
+                bestScore = score;
+                localStorage.setItem('bestScore', bestScore);
+                bestScoreEndDisplay.textContent = "ベストスコア更新！";
+            } else {
+                bestScoreEndDisplay.textContent = `ベストスコア: ${bestScore}`;
+            }
+
             playSound(clearSoundBuffer); // ゲーム終了音を再生
         }
 
@@ -436,6 +451,9 @@
         });
 
         retryButton.addEventListener('click', startGame);
+
+        // 初期表示
+        bestScoreDisplay.textContent = `ベストスコア: ${bestScore}`;
 
     </script>
 
