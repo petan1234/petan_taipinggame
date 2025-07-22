@@ -11,29 +11,61 @@
         body {
             background-color: #f0e8d9; /* 少し温かみのあるベージュ */
             font-family: 'M PLUS Rounded 1c', 'Hiragino Sans', 'ヒラギノ角ゴシック', 'メイリオ', Meiryo, 'MS Pゴシック', sans-serif;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
+            /* display: flex;  削除 */
+            /* justify-content: center; 削除 */
+            /* align-items: center; 削除 */
+            min-height: 100vh; /* heightをmin-heightに変更 */
             margin: 0;
             color: #5d4037;
+            font-size: 18px; /* 全体のデフォルトフォントサイズを少し大きく */
         }
 
         .container {
             text-align: center;
-            padding: 30px;
+            padding: 40px; /* パディングを増やす */
             background-color: rgba(255, 255, 255, 0.9);
             border-radius: 25px;
             box-shadow: 0 8px 16px rgba(0,0,0,0.15);
             width: 90%;
-            max-width: 700px;
+            max-width: 1000px; /* 最大幅を調整 */
+            margin: -50px auto; /* 上の余白をさらに減らして全体を上に移動 (負の値) */
         }
 
         h1 {
-            font-size: 48px; /* 大幅に大きく */
-            margin-bottom: 25px;
-            color: #4e342e; /* 濃い茶色 */
-            text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
+            font-size: 85px; /* サイズは維持 */
+            margin-bottom: 0px; /* 余白をさらに減らして上に移動 */
+            color: #5d4037; /* 濃い茶色 */
+            text-shadow:
+                -2px -2px 0 #4e342e,
+                2px -2px 0 #4e342e,
+                -2px 2px 0 #4e342e,
+                2px 2px 0 #4e342e,
+                4px 4px 8px rgba(0,0,0,0.3),
+                0 0 10px rgba(255,255,255,0.5);
+            animation: fadeInDown 1.5s ease-out forwards, gentleBounce 3s infinite alternate;
+        }
+
+        @keyframes fadeInDown {
+            0% {
+                opacity: 0;
+                transform: translateY(-50px);
+            }
+            100% {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes gentleBounce { /* 優しく上下に揺れるアニメーション */
+            0%, 100% {
+                transform: translateY(0) rotate(0deg);
+            }
+            50% {
+                transform: translateY(-8px) rotate(-2deg); /* 少し上に浮き、わずかに回転 */
+            }
+            100% {
+                transform: translateY(0) rotate(0deg);
+            }
         }
 
         .game-area {
@@ -45,6 +77,16 @@
             height: auto;
             margin-top: 20px;
             transition: transform 0.2s;
+        }
+
+        #petan-img:hover {
+            transform: scale(1.1) rotate(3deg); /* ホバー時に少し拡大し、わずかに回転 */
+            cursor: pointer; /* カーソルをポインターに変更してインタラクティブ性を示す */
+        }
+
+        .petan-and-score:hover img {
+            transform: scale(1.1) rotate(3deg); /* ホバー時に少し拡大し、わずかに回転 */
+            cursor: pointer; /* カーソルをポインターに変更してインタラクティブ性を示す */
         }
 
         /* ぺたんのリアクション用アニメーション */
@@ -69,14 +111,14 @@
             position: relative;
             background: #e8eaf6;
             border-radius: .4em;
-            padding: 15px;
-            min-height: 50px;
+            padding: 20px;
+            min-height: 60px;
             display: flex;
             justify-content: center;
             align-items: center;
-            font-size: 20px;
+            font-size: 28px; /* 大きく */
             font-weight: bold;
-            margin-bottom: 10px;
+            margin-bottom: 15px;
         }
 
         .speech-bubble:after {
@@ -94,11 +136,11 @@
         }
 
         #romaji-display {
-            font-size: 22px;
+            font-size: 28px; /* 大きく */
             font-family: monospace;
             letter-spacing: 2px;
             color: #888;
-            height: 30px;
+            height: 40px;
         }
         #romaji-display .typed {
             color: #388e3c; /* 濃い緑 */
@@ -106,12 +148,12 @@
 
         #input-box {
             width: 80%;
-            padding: 10px;
-            font-size: 18px;
+            padding: 15px;
+            font-size: 22px; /* 大きく */
             border: 2px solid #ccc;
             border-radius: 5px;
             text-align: center;
-            margin-top: 20px;
+            margin-top: 25px;
         }
         #input-box:focus {
             outline: none;
@@ -122,10 +164,11 @@
             display: none; /* 初期状態では非表示 */
             flex-direction: column;
             align-items: center;
+            margin-top: -100px; /* さらに上に移動 */
         }
         
         .clear-screen h2 {
-            font-size: 28px;
+            font-size: 36px; /* 大きく */
             color: #ff6f61;
         }
 
@@ -143,17 +186,73 @@
             align-items: center;
             justify-content: center;
             height: 100%;
+            width: 100%; /* 親要素の幅いっぱいに広げる */
+        }
+
+        #start-screen p {
+            font-size: 20px; /* スタート画面のテキストを大きく */
+        }
+
+        #best-score-display, #best-score-end-display {
+            font-size: 32px; /* さらに大きく */
+            font-weight: bold;
+            color: #ffffff; /* 白い文字 */
+            background: linear-gradient(145deg, #ffd700, #ffa500); /* ゴールドのグラデーション */
+            border: 3px solid #daa520; /* ゴールドのボーダー */
+            border-radius: 15px; /* 角を丸く */
+            box-shadow: 0 8px 20px rgba(0,0,0,0.3), 0 0 30px rgba(255,215,0,0.5); /* 強い影と光るエフェクト */
+            margin-bottom: 30px; /* 下に余白 */
+            padding: 15px 30px; /* パディングを増やす */
+            display: inline-block;
+            text-shadow: 2px 2px 5px rgba(0,0,0,0.4); /* 強いテキストシャドウ */
+            position: relative; /* 光沢エフェクト用 */
+            overflow: hidden; /* 光沢エフェクト用 */
+            animation: popIn 0.8s cubic-bezier(0.68, -0.55, 0.27, 1.55) forwards; /* 新しいアニメーション */
+        }
+
+        /* 光沢エフェクト */
+        #best-score-display::before, #best-score-end-display::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -75%;
+            width: 50%;
+            height: 100%;
+            background: rgba(255, 255, 255, 0.3);
+            transform: skewX(-20deg);
+            animation: shine 2s infinite;
+        }
+
+        @keyframes shine {
+            0% { left: -75%; }
+            20% { left: 100%; }
+            100% { left: 100%; }
+        }
+
+        /* 新しいアニメーション */
+        @keyframes popIn {
+            0% {
+                transform: scale(0);
+                opacity: 0;
+            }
+            80% {
+                transform: scale(1.1);
+                opacity: 1;
+            }
+            100% {
+                transform: scale(1);
+            }
         }
 
         #start-button {
-            padding: 15px 30px;
-            font-size: 24px;
+            padding: 20px 40px;
+            font-size: 28px; /* 大きく */
             background-color: #a5d6a7; /* 緑系 */
             color: white;
             border: none;
             border-radius: 10px;
             cursor: pointer;
-            margin-top: 30px;
+            margin-top: 0px; /* さらに上に移動 */
             box-shadow: 0 4px 8px rgba(0,0,0,0.2);
             transition: background-color 0.3s;
         }
@@ -199,11 +298,115 @@
             animation: fall 4s linear forwards;
         }
 
+        /* ゲーム中のスコアとタイマー */
+        #score, #timer {
+            font-size: 24px; /* 大きく */
+        }
+
+        /* ゲーム終了画面 */
+        #final-score {
+            font-size: 32px; /* 大きく */
+        }
+        #best-score-end-display {
+            font-size: 24px; /* 大きく */
+        }
+        #retry-button {
+            padding: 15px 30px;
+            font-size: 22px; /* 大きく */
+        }
+
         @keyframes fall {
             to {
                 transform: translateY(100vh) rotate(720deg);
                 opacity: 0;
             }
+        }
+
+        /* 全国ランキングのコンテナ */
+        #ranking-list-start, #ranking-list-end {
+            margin-top: 0; /* 親要素で余白を管理するためリセット */
+            text-align: center; /* 中央揃え */
+            background-color: #fff3e0; /* 薄いオレンジ系の背景 */
+            padding: 20px; /* 元に戻す */
+            border-radius: 15px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            width: 300px; /* 元に戻す */
+            max-width: 40%; /* 元に戻す */
+        }
+
+        #ranking-list-start h3, #ranking-list-end h3 {
+            font-size: 28px; /* 見出しを大きく */
+            color: #d84315; /* 濃いオレンジ */
+            margin-bottom: 15px;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.1);
+        }
+
+        #ranking-ul-start, #ranking-ul-end {
+            list-style: none; /* デフォルトのリストスタイルを削除 */
+            padding: 0;
+            margin: 0;
+        }
+
+        #ranking-ul-start li, #ranking-ul-end li {
+            font-size: 22px; /* リスト項目を大きく */
+            font-weight: bold; /* 太字 */
+            color: #6d4c41; /* 茶色 */
+            padding: 10px 0;
+            border-bottom: 1px solid #ffe0b2; /* 薄いボーダー */
+            transition: all 0.3s ease;
+        }
+
+        #ranking-ul-start li:last-child, #ranking-ul-end li:last-child {
+            border-bottom: none; /* 最後の項目はボーダーなし */
+        }
+
+        #ranking-ul-start li:nth-child(1), #ranking-ul-end li:nth-child(1) {
+            color: #ffc107; /* 1位はゴールド */
+            font-size: 26px;
+            text-shadow: 0 0 8px rgba(255,193,7,0.7);
+        }
+
+        #ranking-ul-start li:nth-child(2), #ranking-ul-end li:nth-child(2) {
+            color: #bdbdbd; /* 2位はシルバー */
+            font-size: 24px;
+            text-shadow: 0 0 6px rgba(189,189,189,0.7);
+        }
+
+        #ranking-ul-start li:nth-child(3), #ranking-ul-end li:nth-child(3) {
+            color: #cd7f32; /* 3位はブロンズ */
+            font-size: 23px;
+            text-shadow: 0 0 4px rgba(205,127,50,0.7);
+        }
+
+        #ranking-ul-start li:hover, #ranking-ul-end li:hover {
+            background-color: #fff8e1; /* ホバー時の背景色 */
+            transform: translateX(5px); /* 少し右に移動 */
+        }
+
+        .start-layout, .end-layout {
+            display: flex;
+            align-items: center; /* 垂直方向中央揃え */
+            justify-content: center; /* 水平方向中央揃え */
+            gap: 50px; /* 要素間のスペースを広げる */
+            margin-bottom: 20px; /* 下に少し余白 */
+            flex-wrap: wrap; /* 画面が小さい場合に折り返す */
+        }
+
+        .start-layout img, .end-layout img {
+            margin-bottom: 0 !important; /* インラインスタイルを上書き */
+        }
+
+        /* ランキングリストのmargin-topを調整 */
+        #ranking-list-start, #ranking-list-end {
+            margin-top: 0; /* 親要素で余白を管理するためリセット */
+        }
+
+        .petan-and-score {
+            display: flex;
+            flex-direction: column; /* 縦並び */
+            align-items: center; /* 水平方向中央揃え */
+            justify-content: center; /* 垂直方向中央揃え */
+            gap: 10px; /* 要素間のスペース */
         }
 
     </style>
@@ -216,8 +419,16 @@
         <h1>ぺたんタイピング</h1>
 
         <div id="start-screen">
-            <img src="petan.png" alt="ぺたん" style="width: 180px; margin-bottom: 20px;">
-            <p id="best-score-display" style="font-size: 20px; font-weight: bold; margin-bottom: 20px;">ベストスコア: 0</p>
+            <div class="start-layout">
+                <div id="ranking-list-start" style="margin-top: 20px; text-align: left;">
+                    <h3>全国ランキング</h3>
+                    <ul id="ranking-ul-start"></ul>
+                </div>
+                <div class="petan-and-score">
+                    <img src="petan.png" alt="ぺたん" style="width: 180px; margin-bottom: 20px;">
+                    <p id="best-score-display" style="font-size: 20px; font-weight: bold; margin-bottom: 20px;">ベストスコア: 0</p>
+                </div>
+            </div>
             <p style="font-size: 18px;">ぺたんと一緒にタイピングを始めよう！</p>
             <button id="start-button">ゲームスタート</button>
         </div>
@@ -240,14 +451,47 @@
         <div id="end-screen" class="clear-screen">
             <h2>ゲーム終了！</h2>
             <p id="final-score" style="font-size: 24px; font-weight: bold;"></p>
-            <p id="best-score-end-display" style="font-size: 20px; margin-top: 10px;"></p>
-            <img src="petan.png" alt="ぺたん" style="width: 150px; margin-top: 20px;">
+            <div class="end-layout">
+                <div id="ranking-list-end" style="margin-top: 20px; text-align: left;">
+                    <h3>全国ランキング</h3>
+                    <ul id="ranking-ul-end"></ul>
+                </div>
+                <div class="petan-and-score">
+                    <img src="petan.png" alt="ぺたん" style="width: 150px; margin-top: 20px;">
+                    <p id="best-score-end-display" style="font-size: 20px; margin-top: 10px;"></p>
+                </div>
+            </div>
             <p>また挑戦してね！</p>
             <button id="retry-button" style="padding: 10px 20px; font-size: 18px; background-color: #a5d6a7; color: white; border: none; border-radius: 5px; cursor: pointer; margin-top: 20px;">もう一度プレイ</button>
         </div>
     </div>
 
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore-compat.js"></script>
     <script>
+        // Your web app's Firebase configuration
+        // TODO: Replace with your actual Firebase config from Firebase Console
+        const firebaseConfig = {
+          apiKey: "AIzaSyBDrqMmCRfMNml2OTNRi9_mm-wFRmne854",
+          authDomain: "petan-typing-game-new.firebaseapp.com",
+          projectId: "petan-typing-game-new",
+          storageBucket: "petan-typing-game-new.firebasestorage.app",
+          messagingSenderId: "961951509984",
+          appId: "1:961951509984:web:90e8d9fadf51a298924f85",
+          measurementId: "G-6V1RHP7MSY"
+        };
+
+        // Initialize Firebase
+        let db;
+        try {
+            firebase.initializeApp(firebaseConfig);
+            db = firebase.firestore();
+            console.log("Firebase initialized successfully.");
+        } catch (error) {
+            console.error("Firebase initialization failed:", error);
+            console.error("Please ensure your firebaseConfig is correct and Firebase SDKs are loaded.");
+        }
+
         const sentences = [
             { kana: "おやつたべたい", romaji: "oyatsutabetai" },
             { kana: "すやあ", romaji: "suyaa" },
@@ -284,6 +528,8 @@
         const bestScoreDisplay = document.getElementById('best-score-display');
         const bestScoreEndDisplay = document.getElementById('best-score-end-display');
         const confettiContainer = document.getElementById('confetti-container');
+        const rankingUlStart = document.getElementById('ranking-ul-start');
+        const rankingUlEnd = document.getElementById('ranking-ul-end');
 
         // サウンドファイルを読み込む関数
         async function loadSound(url) {
@@ -389,6 +635,67 @@
             }
 
             playSound(clearSoundBuffer); // ゲーム終了音を再生
+
+            // スコアをFirebaseに保存
+            saveScore(score);
+        }
+
+        // スコアをFirebaseに保存する関数
+        async function saveScore(finalScore) {
+            const username = prompt("お名前を入力してください（ランキング用）:");
+            if (username) {
+                const scoreToSave = Number(finalScore); // 数値に変換
+                // スコアがNaNの場合、保存せずにエラーメッセージを表示
+                if (isNaN(scoreToSave)) {
+                    console.error(`保存しようとしたスコアが不正な数値です: ${finalScore}`);
+                    alert("スコアが不正なため保存できませんでした。");
+                    return; // 保存処理を中断
+                }
+                await db.collection("scores").add({
+                    username: username,
+                    score: scoreToSave,
+                    timestamp: firebase.firestore.FieldValue.serverTimestamp()
+                });
+                fetchAndDisplayRanking(); // ランキングを更新
+            }
+        }
+
+        // Firebaseからランキングを取得して表示する関数
+        async function fetchAndDisplayRanking() {
+            const scoresRef = db.collection("scores").orderBy("score", "desc").limit(5); // 上位5件
+            const snapshot = await scoresRef.get();
+            
+            let rankingHtml = '';
+            if (snapshot.empty) {
+                rankingHtml = '<li>まだスコアがありません。</li>';
+            } else {
+                let rankCounter = 0; // 追加
+                snapshot.forEach((doc) => { // index引数を削除
+                    rankCounter++; // 追加
+                    const data = doc.data();
+                    console.log(`DEBUG: Ranking entry data for doc ID ${doc.id}:`, data, `Score value: ${data.score}, Score type: ${typeof data.score}`);
+
+                    const rawScore = data.score; // Firebaseから取得した生のスコア
+                    const displayScore = Number(rawScore); // 数値に変換
+
+                    // スコアがNaNの場合はこのエントリをスキップし、エラーログを出力
+                    if (isNaN(displayScore)) {
+                        console.error(`ランキングデータに不正なスコアが見つかりました。このエントリはスキップされます。Doc ID: ${doc.id}, Raw Score: ${rawScore}, Type: ${typeof rawScore}`);
+                        return; // このforEachのイテレーションをスキップ
+                    }
+
+                    const rank = rankCounter; // 修正
+                    // console.log(`DEBUG: Inside forEach - index: ${index}, typeof index: ${typeof index}, rank: ${rank}, typeof rank: ${typeof rank}`); // 削除
+
+                    rankingHtml += `<li>${rank}. ${data.username}: ${displayScore}</li>`;
+                });
+            }
+
+            // ここにrankingHtmlのログを追加
+            console.log("DEBUG: Final rankingHtml content:", rankingHtml);
+
+            rankingUlStart.innerHTML = rankingHtml;
+            rankingUlEnd.innerHTML = rankingHtml;
         }
 
         function createConfetti() {
@@ -465,7 +772,11 @@
             const typedText = inputBox.value.toLowerCase();
             const targetRomaji = currentSentence.romaji;
 
+            console.log(`Typed: ${typedText}, Target: ${targetRomaji}, LastCorrect: ${lastCorrectValue}`); // デバッグ用
+
             const result = checkInput(typedText, targetRomaji);
+
+            console.log(`Check Result: isCorrect=${result.isCorrect}, MatchedLength=${result.matchedLength}`); // デバッグ用
 
             if (result.isCorrect) {
                 // 正しい文字が入力されたら効果音を鳴らす
@@ -523,6 +834,7 @@
 
         // 初期表示
         bestScoreDisplay.textContent = `ベストスコア: ${bestScore}`;
+        fetchAndDisplayRanking(); // ページ読み込み時にランキングを表示
 
     </script>
 
