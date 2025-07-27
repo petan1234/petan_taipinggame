@@ -1,0 +1,422 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ぺたんのぬりえアプリ</title>
+    <!-- ▼追加: Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=M+PLUS+Rounded+1c:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        /* --- ▼全面的にスタイルを修正▼ --- */
+        :root {
+            --main-bg-color: #fdfaf4; /* 優しいクリーム色 */
+            --container-bg-color: #ffffff;
+            --primary-color: #6d5c4f; /* 落ち着いた茶色 */
+            --accent-color: #f5b994; /* アクセントのオレンジ */
+            --text-color: #3e352f;
+            --border-color: #e0dcd7;
+            --shadow-color: rgba(0, 0, 0, 0.08);
+        }
+
+        body {
+            font-family: 'M PLUS Rounded 1c', sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            margin: 0;
+            padding: 20px;
+            background-color: var(--main-bg-color);
+            color: var(--text-color);
+            -webkit-user-select: none;
+            -ms-user-select: none;
+            user-select: none;
+        }
+
+        .container {
+            max-width: 500px;
+            width: 100%;
+            background: var(--container-bg-color);
+            padding: 25px 30px;
+            border-radius: 16px;
+            box-shadow: 0 8px 25px var(--shadow-color);
+            text-align: center;
+        }
+
+        h1 {
+            color: var(--primary-color);
+            font-weight: 700;
+            margin-top: 0;
+            margin-bottom: 20px;
+        }
+
+        /* ツールバー */
+        .toolbar {
+            background-color: #f9f7f5;
+            padding: 15px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+        }
+
+        .tool-section {
+            margin-bottom: 15px;
+        }
+        .tool-section:last-child {
+            margin-bottom: 0;
+        }
+
+        .tool-section h3 {
+            font-size: 14px;
+            font-weight: 700;
+            color: var(--primary-color);
+            margin: 0 0 10px 0;
+            text-align: left;
+        }
+
+        #color-palette, #pen-size-selector, #mode-controls {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .color-box {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            cursor: pointer;
+            border: 3px solid transparent;
+            transition: all 0.2s ease;
+        }
+        .color-box.selected {
+            border-color: var(--accent-color);
+            transform: scale(1.15);
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+        }
+
+        .pen-size-option {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            cursor: pointer;
+            border: 2px solid var(--border-color);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            transition: all 0.2s ease;
+            background-color: white;
+        }
+        .pen-size-option .dot {
+            border-radius: 50%;
+            background-color: var(--text-color);
+        }
+        .pen-size-option[data-size="2"] .dot { width: 4px; height: 4px; }
+        .pen-size-option[data-size="5"] .dot { width: 8px; height: 8px; }
+        .pen-size-option[data-size="10"] .dot { width: 12px; height: 12px; }
+        .pen-size-option[data-size="20"] .dot { width: 18px; height: 18px; }
+        .pen-size-option.selected {
+            border-color: var(--accent-color);
+            background-color: #fff8f2;
+        }
+
+        /* モード切替ボタン */
+        .mode-btn {
+            flex: 1;
+            padding: 10px;
+            font-size: 14px;
+            font-weight: 700;
+            cursor: pointer;
+            border: 2px solid var(--border-color);
+            border-radius: 8px;
+            background-color: white;
+            color: var(--primary-color);
+            transition: all 0.2s ease;
+        }
+        .mode-btn.active {
+            background-color: var(--accent-color);
+            color: white;
+            border-color: var(--accent-color);
+        }
+
+        /* 描画エリア */
+        #drawing-area {
+            position: relative;
+            width: 100%;
+            max-width: 400px;
+            margin: 0 auto 20px;
+            border: 2px solid var(--border-color);
+            border-radius: 12px;
+            overflow: hidden; /* 角丸を適用するため */
+        }
+        #petan-svg {
+            display: block;
+            width: 100%;
+            height: auto;
+        }
+        #pencil-canvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+        }
+        #drawing-area.pencil-mode #pencil-canvas { pointer-events: auto; }
+        #drawing-area.pencil-mode { cursor: crosshair; }
+        #drawing-area.fill-mode .fillable { cursor: pointer; }
+
+        /* 下部ボタン */
+        #main-controls {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+        }
+        .main-btn {
+            padding: 12px 25px;
+            font-size: 16px;
+            font-weight: 700;
+            cursor: pointer;
+            border: none;
+            border-radius: 10px;
+            transition: all 0.2s ease;
+        }
+        #save-btn {
+            background-color: var(--primary-color);
+            color: white;
+        }
+        #save-btn:hover { background-color: #5a4c41; }
+        #reset-btn {
+            background-color: #e7e2dd;
+            color: var(--primary-color);
+        }
+        #reset-btn:hover { background-color: #d9d3ce; }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h1>ぺたんのぬりえアプリ</h1>
+
+        <!-- ▼UI構造をツールバーに集約▼ -->
+        <div class="toolbar">
+            <div class="tool-section">
+                <h3>カラー</h3>
+                <div id="color-palette"></div>
+            </div>
+            <div class="tool-section">
+                <h3>線の太さ</h3>
+                <div id="pen-size-selector"></div>
+            </div>
+            <div class="tool-section">
+                <h3>モード</h3>
+                <div id="mode-controls">
+                    <button id="fill-mode-btn" class="mode-btn active">塗りモード</button>
+                    <button id="pencil-mode-btn" class="mode-btn">ペンシル</button>
+                </div>
+            </div>
+        </div>
+
+        <div id="drawing-area" class="fill-mode">
+            <svg viewBox="0 0 200 200" id="petan-svg">
+                <g id="petan">
+                    <path class="fillable" id="body" d="M50,100 C50,150 150,150 150,100 C150,50 50,50 50,100 Z" fill="white" stroke="black" stroke-width="2"/>
+                    <path class="fillable" id="face" d="M70,80 C70,120 130,120 130,80 C130,60 70,60 70,80 Z" fill="white" stroke="black" stroke-width="2"/>
+                    <circle cx="85" cy="85" r="3" fill="black"/>
+                    <circle cx="115" cy="85" r="3" fill="black"/>
+                    <path d="M95,100 Q100,105 105,100" stroke="black" stroke-width="1" fill="none"/>
+                    <circle class="fillable" id="cheek-left" cx="75" cy="95" r="5" fill="white" stroke="black" stroke-width="1"/>
+                    <circle class="fillable" id="cheek-right" cx="125" cy="95" r="5" fill="white" stroke="black" stroke-width="1"/>
+                    <path class="fillable" id="hat" d="M80,50 L120,50 L110,30 L90,30 Z" fill="white" stroke="black" stroke-width="2"/>
+                </g>
+            </svg>
+            <canvas id="pencil-canvas"></canvas>
+        </div>
+
+        <div id="main-controls">
+            <button id="save-btn" class="main-btn">保存</button>
+            <button id="reset-btn" class="main-btn">全消し</button>
+        </div>
+    </div>
+
+    <script>
+    document.addEventListener('DOMContentLoaded', () => {
+        // --- ▼要素取得の修正・追加▼ ---
+        const paletteContainer = document.getElementById('color-palette');
+        const penSizeSelector = document.getElementById('pen-size-selector');
+        const fillModeBtn = document.getElementById('fill-mode-btn');
+        const pencilModeBtn = document.getElementById('pencil-mode-btn');
+        const drawingArea = document.getElementById('drawing-area');
+        const svgElement = document.getElementById('petan-svg');
+        const pencilCanvas = document.getElementById('pencil-canvas');
+        const pencilCtx = pencilCanvas.getContext('2d');
+        const fillableParts = document.querySelectorAll('.fillable');
+        const saveButton = document.getElementById('save-btn');
+        const resetButton = document.getElementById('reset-btn');
+
+        const penSizes = [2, 5, 10, 20];
+        const colors = ['#d62828', '#f77f00', '#fcbf49', '#eae2b7', '#003049', '#4f772d', '#3d348b', '#f2f2f2'];
+        
+        let currentMode = 'fill';
+        let isDrawing = false;
+        let selectedColor = colors[6];
+        let selectedPenSize = penSizes[0];
+
+        const setupCanvas = () => {
+            const svgRect = svgElement.getBoundingClientRect();
+            pencilCanvas.width = svgRect.width;
+            pencilCanvas.height = svgRect.height;
+            pencilCtx.strokeStyle = selectedColor;
+            pencilCtx.lineWidth = selectedPenSize;
+            pencilCtx.lineCap = 'round';
+            pencilCtx.lineJoin = 'round';
+        };
+
+        const updateActiveColor = (color) => {
+            selectedColor = color;
+            pencilCtx.strokeStyle = selectedColor;
+            document.querySelectorAll('.color-box').forEach(box => {
+                box.classList.toggle('selected', box.dataset.color === color);
+            });
+        };
+
+        const updateActivePenSize = (size) => {
+            selectedPenSize = size;
+            pencilCtx.lineWidth = selectedPenSize;
+            document.querySelectorAll('.pen-size-option').forEach(opt => {
+                opt.classList.toggle('selected', parseInt(opt.dataset.size) === size);
+            });
+        };
+
+        const switchMode = (newMode) => {
+            currentMode = newMode;
+            if (newMode === 'fill') {
+                drawingArea.classList.add('fill-mode');
+                drawingArea.classList.remove('pencil-mode');
+                fillModeBtn.classList.add('active');
+                pencilModeBtn.classList.remove('active');
+            } else {
+                drawingArea.classList.add('pencil-mode');
+                drawingArea.classList.remove('fill-mode');
+                pencilModeBtn.classList.add('active');
+                fillModeBtn.classList.remove('active');
+            }
+        };
+
+        colors.forEach(color => {
+            const colorBox = document.createElement('div');
+            colorBox.className = 'color-box';
+            colorBox.style.backgroundColor = color;
+            colorBox.dataset.color = color;
+            colorBox.addEventListener('click', () => updateActiveColor(color));
+            paletteContainer.appendChild(colorBox);
+        });
+
+        penSizes.forEach(size => {
+            const sizeOption = document.createElement('div');
+            sizeOption.className = 'pen-size-option';
+            sizeOption.dataset.size = size;
+            const dot = document.createElement('div');
+            dot.className = 'dot';
+            sizeOption.appendChild(dot);
+            sizeOption.addEventListener('click', () => updateActivePenSize(size));
+            penSizeSelector.appendChild(sizeOption);
+        });
+
+        fillModeBtn.addEventListener('click', () => switchMode('fill'));
+        pencilModeBtn.addEventListener('click', () => switchMode('pencil'));
+
+        fillableParts.forEach(part => {
+            part.addEventListener('click', () => {
+                if (currentMode === 'fill') {
+                    part.setAttribute('fill', selectedColor);
+                }
+            });
+        });
+
+        resetButton.addEventListener('click', () => {
+            fillableParts.forEach(part => {
+                part.setAttribute('fill', 'white');
+            });
+            pencilCtx.clearRect(0, 0, pencilCanvas.width, pencilCanvas.height);
+        });
+
+        saveButton.addEventListener('click', () => {
+            const finalCanvas = document.createElement('canvas');
+            const finalCtx = finalCanvas.getContext('2d');
+            const img = new Image();
+            const serializer = new XMLSerializer();
+            const svgString = serializer.serializeToString(svgElement);
+            const svgBlob = new Blob([svgString], {type: 'image/svg+xml;charset=utf-8'});
+            const url = URL.createObjectURL(svgBlob);
+
+            img.onload = () => {
+                finalCanvas.width = pencilCanvas.width;
+                finalCanvas.height = pencilCanvas.height;
+                finalCtx.fillStyle = 'white';
+                finalCtx.fillRect(0, 0, finalCanvas.width, finalCanvas.height);
+                finalCtx.drawImage(img, 0, 0, finalCanvas.width, finalCanvas.height);
+                URL.revokeObjectURL(url);
+                finalCtx.drawImage(pencilCanvas, 0, 0);
+                const link = document.createElement('a');
+                link.download = 'petan-coloring.png';
+                link.href = finalCanvas.toDataURL('image/png');
+                link.click();
+            };
+            img.src = url;
+        });
+
+        const getEventPos = (e) => {
+            const rect = pencilCanvas.getBoundingClientRect();
+            const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+            const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+            return { x: (clientX - rect.left), y: (clientY - rect.top) };
+        };
+
+        const startDrawing = (e) => {
+            if (currentMode !== 'pencil') return;
+            e.preventDefault();
+            isDrawing = true;
+            const pos = getEventPos(e);
+            pencilCtx.beginPath();
+            pencilCtx.moveTo(pos.x, pos.y);
+        };
+
+        const draw = (e) => {
+            if (!isDrawing || currentMode !== 'pencil') return;
+            e.preventDefault();
+            const pos = getEventPos(e);
+            pencilCtx.lineTo(pos.x, pos.y);
+            pencilCtx.stroke();
+        };
+
+        const stopDrawing = () => {
+            if (!isDrawing) return;
+            isDrawing = false;
+            pencilCtx.closePath();
+        };
+
+        drawingArea.addEventListener('mousedown', startDrawing);
+        drawingArea.addEventListener('mousemove', draw);
+        drawingArea.addEventListener('mouseup', stopDrawing);
+        drawingArea.addEventListener('mouseleave', stopDrawing);
+        drawingArea.addEventListener('touchstart', startDrawing, { passive: false });
+        drawingArea.addEventListener('touchmove', draw, { passive: false });
+        drawingArea.addEventListener('touchend', stopDrawing);
+        drawingArea.addEventListener('touchcancel', stopDrawing);
+
+        const init = () => {
+            setupCanvas();
+            updateActiveColor(selectedColor);
+            updateActivePenSize(selectedPenSize);
+            switchMode('fill');
+        };
+
+        setTimeout(init, 100);
+        window.addEventListener('resize', setupCanvas);
+    });
+    </script>
+
+</body>
+</html>
